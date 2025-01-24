@@ -6,3 +6,4 @@ scikit-learn
 xgboost
 vaderSentiment
 matplotlib
+feedparser
