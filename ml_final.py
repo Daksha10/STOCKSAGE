@@ -111,7 +111,7 @@ def Check_fetch_metadata():
     metadata = {
         "source": "Yahoo Finance",
         "frequency": "daily",
-        "fields": ["Open", "High", "Low", "Close", "Volume", "Adj Close"]
+        "fields": ["Open", "High", "Low", "Close", "Volume", "Close"]
     }
     # print("Metadata for data source:", metadata)
     return metadata
