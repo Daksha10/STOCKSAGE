@@ -488,10 +488,10 @@ st.title('Stock Trading Strategy with Machine Learning and Sentiment Analysis')
 
 # Plot stock data first (before running the strategy)
 fig, ax = plt.subplots()
-ax.plot(data.index, data['Adj Close'], label=ticker, color='blue')
+ax.plot(data.index, data['Close'], label=ticker, color='blue')
 ax.set_title(ticker, fontsize=16)
 ax.set_xlabel('Date', fontsize=12)
-ax.set_ylabel('Adj Close', fontsize=12)
+ax.set_ylabel('Close', fontsize=12)
 plt.xticks(rotation=45)
 st.pyplot(fig)
 listt = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'FB', 'NFLX', 'BRK.A', 'NVDA', 'DIS']
