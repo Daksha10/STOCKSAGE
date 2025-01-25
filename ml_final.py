@@ -486,7 +486,7 @@ data = get_stock_data(ticker, start_date, end_date)
 # Display the title and stock graph at the beginning
 st.title('Stock Trading Strategy with Machine Learning and Sentiment Analysis')
 # Define the list of companies
-companies = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "FB", "NFLX","NVDA", "DIS"]
+companies = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA","NFLX","NVDA", "DIS"]
 
 # Display the list of companies in the Streamlit app
 st.write("**Available Tickers:**")
