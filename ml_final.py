@@ -498,7 +498,12 @@ print(data.columns)
 
 # Display the title and stock graph at the beginning
 st.title('Stock Trading Strategy with Machine Learning and Sentiment Analysis')
+# Define the list of companies
+companies = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA","NFLX","NVDA", "DIS"]
 
+# Display the list of companies in the Streamlit app
+st.write("**Available Tickers:**")
+st.write(", ".join(companies))
 # Plot stock data first (before running the strategy)
 fig, ax = plt.subplots()
 ax.plot(data.index, data['Close'], label=ticker, color='blue')
