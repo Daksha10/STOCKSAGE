@@ -333,20 +333,24 @@ def get_top_headlines():
 
 # Main function to run the trading strategy
 def run_trading_strategy(stock_data_dict, news_data, financial_data):
-    for stock, stock_data in stock_data_dict.items():
+    for stock in stock_data_dict:
+        if not news_data or stock not in news_data or not news_data[stock]:  # Handle missing news
+            print(f"No news data found for {stock}. Skipping...")
+            continue  # Skip this stock and move to the next
+        
         st.write(f"### Stock: {stock}")
 
         # Calculate crash probability
-        crash_probability = calculate_crash_probability(stock_data)
+        crash_probability = calculate_crash_probability(stock_data_dict[stock])
         st.write(f"Probability of market crash: {crash_probability:.2f}%")
 
         # Calculate probability of going up using ML
-        model = train_ml_model(stock_data)
-        prob_up = model.predict_proba([[len(stock_data)]])[0][1] * 100
+        model = train_ml_model(stock_data_dict[stock])
+        prob_up = model.predict_proba([[len(stock_data_dict[stock])]])[0][1] * 100
         st.write(f"Probability of going up (ML): {prob_up:.2f}%")
 
         # Calculate probability of going up using ACO
-        aco_prob_up = calculate_aco_probability(stock_data)
+        aco_prob_up = calculate_aco_probability(stock_data_dict[stock])
         st.write(f"Probability of going up (ACO): {aco_prob_up:.2f}%")
 
         # Evaluate financials
@@ -361,10 +365,6 @@ def run_trading_strategy(stock_data_dict, news_data, financial_data):
         st.write(f"Financial Evaluation: {'Pass' if financial_evaluation else 'Fail'}")
 
         # Analyze news sentiment
-        news_data = get_news_data(stock)
-        #print(news_data)
-        if not news_data[stock]:  # If the list for the stock is empty
-            news_data[stock].append({"Date": datetime.today().strftime('%Y-%m-%d'), "Headline": "Good", "Link": ""})
         news_sentiment_prob, news_sentiment_df = analyze_news_sentiment(news_data[stock])
         st.write("#### News Sentiment")
         st.write(news_sentiment_df)  # Display sentiment analysis
