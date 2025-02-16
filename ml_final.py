@@ -260,7 +260,7 @@ def get_news_data(stock_ticker):
     # URL to fetch data (Example: Yahoo Finance)
     url = f"https://finance.yahoo.com/quote/{stock_ticker}?p={stock_ticker}"
     
-    try: 
+    try:
         # Send HTTP request to fetch the web page
         response = requests.get(url)
         response.raise_for_status()  # Raise exception for HTTP errors
@@ -333,36 +333,47 @@ def get_top_headlines():
 
 # Main function to run the trading strategy
 def run_trading_strategy(stock_data_dict, news_data, financial_data):
-    for stock in stock_data_dict:
-        if not news_data or stock not in news_data or not news_data[stock]:  # Handle missing news
-            print(f"No news data found for {stock}. Skipping...")
-            continue  # Skip this stock and move to the next
-        
+    if not isinstance(news_data, dict):  # Ensure news_data is a dictionary
+        print("Error: news_data is not a dictionary. Setting it to an empty dictionary.")
+        news_data = {}  # Assign an empty dictionary to prevent errors
+
+    for stock, stock_data in stock_data_dict.items():
         st.write(f"### Stock: {stock}")
 
         # Calculate crash probability
-        crash_probability = calculate_crash_probability(stock_data_dict[stock])
+        crash_probability = calculate_crash_probability(stock_data)
         st.write(f"Probability of market crash: {crash_probability:.2f}%")
 
         # Calculate probability of going up using ML
-        model = train_ml_model(stock_data_dict[stock])
-        prob_up = model.predict_proba([[len(stock_data_dict[stock])]])[0][1] * 100
+        model = train_ml_model(stock_data)
+        prob_up = model.predict_proba([[len(stock_data)]])[0][1] * 100
         st.write(f"Probability of going up (ML): {prob_up:.2f}%")
 
         # Calculate probability of going up using ACO
-        aco_prob_up = calculate_aco_probability(stock_data_dict[stock])
+        aco_prob_up = calculate_aco_probability(stock_data)
         st.write(f"Probability of going up (ACO): {aco_prob_up:.2f}%")
 
         # Evaluate financials
-        eps = financial_data['EPS']
-        pe_ratio = financial_data['P/E Ratio']
-        industry_pe_ratio = financial_data['Industry P/E Ratio']
-        de_ratio = financial_data['D/E Ratio']
-        financial_results = financial_data['Previous Quarters Financial Results']
-        price_book_value = financial_data['P/B Ratio']
+        try:
+            eps = financial_data.get('EPS', 0)
+            pe_ratio = financial_data.get('P/E Ratio', 0)
+            industry_pe_ratio = financial_data.get('Industry P/E Ratio', 0)
+            de_ratio = financial_data.get('D/E Ratio', 0)
+            financial_results = financial_data.get('Previous Quarters Financial Results', [])
+            price_book_value = financial_data.get('P/B Ratio', 0)
+        except AttributeError:
+            print(f"Error: financial_data is not a dictionary. Skipping financial evaluation.")
+            continue
 
         financial_evaluation = evaluate_financials(eps, pe_ratio, industry_pe_ratio, de_ratio, financial_results, price_book_value)
         st.write(f"Financial Evaluation: {'Pass' if financial_evaluation else 'Fail'}")
+
+        # Check if news data exists for the stock
+        if stock not in news_data or not news_data[stock]:
+            st.write("#### News Sentiment")
+            st.write("⚠️ No Data on Headlines")  # Display message in Streamlit
+            print(f"No news data found for {stock}. Skipping news analysis...")
+            continue
 
         # Analyze news sentiment
         news_sentiment_prob, news_sentiment_df = analyze_news_sentiment(news_data[stock])
@@ -388,6 +399,7 @@ def run_trading_strategy(stock_data_dict, news_data, financial_data):
 
         st.write(f"Recommendation: {recommendation}")
         st.write("---")
+
 
 
 # Check function example
@@ -482,6 +494,7 @@ financial_data = get_stock_financial_data('AAPL')
 
 # Fetch stock data
 data = get_stock_data(ticker, start_date, end_date)
+print(data.columns)
 
 # Display the title and stock graph at the beginning
 st.title('Stock Trading Strategy with Machine Learning and Sentiment Analysis')
@@ -499,7 +512,7 @@ ax.set_xlabel('Date', fontsize=12)
 ax.set_ylabel('Close', fontsize=12)
 plt.xticks(rotation=45)
 st.pyplot(fig)
-listt = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA','NFLX', 'BRK.A', 'NVDA', 'DIS']
+listt = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'FB', 'NFLX', 'BRK.A', 'NVDA', 'DIS']
 
 print("Before")
 
@@ -514,4 +527,8 @@ if st.sidebar.button("Run Strategy"):
     selected_stocks = [ticker]  # Only the entered ticker is selected
     stock_data_dict = {ticker: data}  # Use the fetched stock data
     news_data = get_news_data(ticker)
+    if not isinstance(news_data, dict):  # Ensure news_data is a dictionary
+        print("Error: news_data is not a dictionary. Setting it to an empty dictionary.")
+        news_data = {}  # Assign an empty dictionary to prevent errors
+
     run_trading_strategy(stock_data_dict, news_data, financial_data)
