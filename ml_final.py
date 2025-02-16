@@ -363,7 +363,7 @@ def run_trading_strategy(stock_data_dict, news_data, financial_data):
         # Analyze news sentiment
         news_data = get_news_data(stock)
         #print(news_data)
-        if stock not in news_data or not news_data[stock]:  # If the list for the stock is empty
+        if not news_data[stock]:  # If the list for the stock is empty
             news_data[stock].append({"Date": datetime.today().strftime('%Y-%m-%d'), "Headline": "Good", "Link": ""})
         news_sentiment_prob, news_sentiment_df = analyze_news_sentiment(news_data[stock])
         st.write("#### News Sentiment")
